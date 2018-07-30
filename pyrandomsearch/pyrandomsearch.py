@@ -44,10 +44,8 @@ def handle_eval_results(existing_points, new_point, proc):
         print(textwrap.dedent('''\
             ## ERROR: Could not find evaluated point value in process
             output.'''))
-        new_point[0] = '-'
-        existing_points.append(new_point)
-        for point in existing_points:
-            print(' '.join(map(str, point)))
+        new_point[0] = 'nan'
+        print(' '.join(map(str, new_point)))
         sys.exit(1)
 
     existing_points.append(new_point)
