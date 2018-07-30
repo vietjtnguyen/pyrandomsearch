@@ -215,6 +215,7 @@ def main():
         print(' '.join(map(str, point)))
 
     print('## New points:')
+    sys.stdout.flush()
     last_best_value = float('-inf') if sort_reverse else float('inf')
     num_stale_steps = 0
     while True:
