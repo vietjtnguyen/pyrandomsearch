@@ -116,21 +116,21 @@ def main():
         help='''
             if the change between the last best value and the current best
             value is less than or equal to this threshold then the values are
-            considered stale''')
+            considered stale (default: 0.0)''')
     parser.add_argument(
         '-c', '--stale-count',
         default=10, type=int,
         help='''
             when there are --stale-count consecutive stale steps (see
             --stale-threshold) then the optimization is stopped and considered
-            complete''')
+            complete (default: 10)''')
     parser.add_argument(
         '-p', '--num-proposals',
         default=1, type=int,
         help='''
             the number of "exploratory point" proposals to generate and
             evaluate in parallel during each step; all exploratory points will
-            be offset from the same "best point" for that step''')
+            be offset from the same "best point" for that step (default: 1)''')
     parser.add_argument(
         '--print-date-and-time',
         action='store_true', default=False,
