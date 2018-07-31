@@ -3,7 +3,7 @@ from setuptools import find_packages, setup
 import subprocess
 
 proc = subprocess.Popen(
-    ['git', 'describe'],
+    ['git', 'describe', '--tags'],
     stdout=subprocess.PIPE,
     universal_newlines=True)
 proc.wait()
