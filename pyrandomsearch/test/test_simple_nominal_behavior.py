@@ -11,16 +11,16 @@ class TestSimpleNominalBehavior(unittest.TestCase):
     def test_min_2d_quadratic(self):
         cli.check_output(
             self, 'pyrandomsearch.pyrandomsearch',
-            [
+            args=[
                 '--rng-seed=0',
                 'python -c "print(({})**2+({})**2)"',
             ],
-            '''\
+            stdin='''\
 # score x y
 ## this is a comment
 32 4 4
 ''',
-            '''\
+            expected_stdout='''\
 ## Existing points:
 32.0 4.0 4.0
 ## New points:
@@ -50,17 +50,17 @@ class TestSimpleNominalBehavior(unittest.TestCase):
     def test_max_3d_quadratic(self):
         cli.check_output(
             self, 'pyrandomsearch.pyrandomsearch',
-            [
+            args=[
                 '--rng-seed=0',
                 '--optimization-type=max',
                 'python -c "print(-({})**2-({})**2-({})**2)"',
             ],
-            '''\
+            stdin='''\
 # score x y
 ## this is a comment
 -48 4 4 4
 ''',
-            '''\
+            expected_stdout='''\
 ## Existing points:
 -48.0 4.0 4.0 4.0
 ## New points:
