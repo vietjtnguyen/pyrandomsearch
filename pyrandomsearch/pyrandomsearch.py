@@ -55,7 +55,9 @@ def handle_eval_results(existing_points, new_point, proc):
 
 def main():
     import argparse
+    import ast
     from datetime import datetime
+    import math
     import random
     import sys
     import textwrap
@@ -207,7 +209,7 @@ def main():
                 (point #{}) in existing points input.'''.format(i)))
             sys.exit(1)
 
-    radii = list(map(float, args.radii.split(',')))
+    radii = list(map(lambda x: eval(x, {'math': math}), args.radii.split(',')))
     radii.extend([radii[-1]] * (args.dimensionality - len(radii)))
 
     print('## Existing points:')
