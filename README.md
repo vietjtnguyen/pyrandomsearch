@@ -27,9 +27,11 @@ $ echo "1034.53 0.3 1.0 1000.0 342.4 10" \
     './evaluate_configuration_in_sim --alpha={} --beta={} -C {} {} {}'
 ```
 
+A point is the score/cost/evaluation for that point followed by all of the point's components. So in the above example, 1034.53 is the score for point (0.3, 1.0, 1000.0, 342.4, 10). The program's output follows the same format.
+
 If you want a quick example to just run we can use Python to evaluate an offset two dimensional quadratic surface with a global minimum at (4, 4): `python3 -c "print(({}-4)**2+({}-4)**2)"`. You can also give it empty input in order to start the optimization at the origin.
 
-```
+```sh
 $ echo "" \
   | pyrandomsearch \
     --rng-seed=0 \
