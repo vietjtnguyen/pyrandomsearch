@@ -26,9 +26,8 @@ def run_eval_process(point, command_format_string):
         universal_newlines=True)
 
 
-def handle_eval_results(existing_points, new_point, proc):
+def handle_eval_results(existing_points, new_point, proc, print_func):
     import sys
-    import textwrap
 
     stdout, stderr = proc.communicate()
 
@@ -41,15 +40,15 @@ def handle_eval_results(existing_points, new_point, proc):
             continue
 
     if new_point[0] is None:
-        print(textwrap.dedent('''\
-            ## ERROR: Could not find evaluated point value in process
-            output.'''))
+        print_func(
+            '## ERROR: Could not find evaluated point value in process '
+            'output.')
         new_point[0] = 'nan'
-        print(' '.join(map(str, new_point)))
+        print_func(' '.join(map(str, new_point)))
         sys.exit(1)
 
     existing_points.append(new_point)
-    print(' '.join(map(str, new_point)))
+    print_func(' '.join(map(str, new_point)))
     sys.stdout.flush()
 
 
@@ -60,7 +59,6 @@ def main():
     import math
     import random
     import sys
-    import textwrap
 
     parser = argparse.ArgumentParser(
         description='''
@@ -99,14 +97,23 @@ def main():
         help='''
             pseudo random number generator seed (default: random)''')
     parser.add_argument(
-        '-E', '--evaluated-points',
-        type=argparse.FileType('r'), default=sys.stdin,
+        '-i', '--input',
+        default='-',
         help='''
             file that contains a list of already evaluated points; the file
             format should be white space delimited (leading # are ignored) with
             the first number being the score/cost and each subsequent number
             being a coordinate for that point in the parameter space (default:
-            stdin)''')
+            '-' meaning stdin)''')
+    parser.add_argument(
+        '-a', '--append',
+        action='store_true', default=False,
+        help='''
+            after the input is read for existing evaluated points it is
+            re-opened in append mode so that newly evaluated points are
+            appended to the file; this allows for a sort of "in place"
+            operation where the same optimization continually uses the same
+            file (default: do not append)''')
     parser.add_argument(
         '-O', '--optimization-type',
         choices={'min', 'max'}, default='min',
@@ -173,19 +180,24 @@ def main():
 
     random.seed(args.rng_seed)
 
+    if args.input == '-':
+        input_stream = sys.stdin
+    else:
+        input_stream = open(args.input, 'r')
+
     existing_points = [
-        tuple(map(float, x.strip().split()))
-        for x in args.evaluated_points.readlines()
-        if not x.startswith('#')
+        tuple(map(float, x.split()))
+        for x in map(str.strip, input_stream.readlines())
+        if not x.startswith('#') and not len(x) == 0
     ]
 
     if len(existing_points) == 0:
         print('## WARN: No existing points, seeding with origin')
         if args.dimensionality is None:
-            print(textwrap.dedent('''\
-                ## ERROR: No existing points to infer dimensionality and
-                --dimensionality is not specified, cannot seed
-                optimization'''))
+            print(
+                '## ERROR: No existing points to infer dimensionality and '
+                '--dimensionality is not specified, cannot seed '
+                'optimization')
             sys.exit(1)
     else:
         # Infer dimensionality if one is not specified
@@ -194,19 +206,19 @@ def main():
 
     for i, point in enumerate(existing_points):
         if len(point) == 0:
-            print(textwrap.dedent('''\
-                ## ERROR: Encountered empty point (point #{}) in existing
-                points input.'''.format(i)))
+            print(
+                '## ERROR: Encountered empty point (point #{}) in existing '
+                'points input.'.format(i))
             sys.exit(1)
         if len(point) == 1:
-            print(textwrap.dedent('''\
-                ## ERROR: Encountered point with score but no parameters (point
-                #{}) in existing points input.'''.format(i)))
+            print(
+                '## ERROR: Encountered point with score but no parameters '
+                '(point #{}) in existing points input.'.format(i))
             sys.exit(1)
         if len(point) - 1 != args.dimensionality:
-            print(textwrap.dedent('''\
-                ## ERROR: Encountered point with mismatched dimensionality
-                (point #{}) in existing points input.'''.format(i)))
+            print(
+                '## ERROR: Encountered point with mismatched dimensionality '
+                '(point #{}) in existing points input.'.format(i))
             sys.exit(1)
 
     radii = list(eval(args.radii + ',', {'math': math}))
@@ -216,15 +228,24 @@ def main():
     existing_points.sort(key=lambda x: x[0], reverse=sort_reverse)
     for point in existing_points:
         print(' '.join(map(str, point)))
-
     print('## New points:')
+
+    if args.append:
+        append_stream = open(args.input, 'a')
+        def print_output(x):
+            print(x, file=append_stream)
+            print(x)
+    else:
+        def print_output(x):
+            print(x)
+
     sys.stdout.flush()
     last_best_value = float('-inf') if sort_reverse else float('inf')
     num_stale_steps = 0
     while True:
 
         if args.print_date_and_time:
-            print(
+            print_output(
                 '## Date and time: {}'.format(
                     datetime.isoformat(datetime.now())))
 
@@ -246,7 +267,7 @@ def main():
         if best_value_change <= args.stale_threshold:
             num_stale_steps += 1
         if num_stale_steps >= args.stale_count:
-            print(
+            print_output(
                 '## Best point: {}'.format(
                     ' '.join(map(str, best_existing_point))))
             break
@@ -263,7 +284,7 @@ def main():
 
         # Wait for and obtain each new points' evaluation results
         for new_point, proc in new_point_evals:
-            handle_eval_results(existing_points, new_point, proc)
+            handle_eval_results(existing_points, new_point, proc, print_output)
 
 
 if __name__ == '__main__':
