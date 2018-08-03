@@ -209,7 +209,7 @@ def main():
                 (point #{}) in existing points input.'''.format(i)))
             sys.exit(1)
 
-    radii = list(map(lambda x: eval(x, {'math': math}), args.radii.split(',')))
+    radii = list(eval(args.radii + ',', {'math': math}))
     radii.extend([radii[-1]] * (args.dimensionality - len(radii)))
 
     print('## Existing points:')
