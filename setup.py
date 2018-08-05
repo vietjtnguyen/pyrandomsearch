@@ -40,6 +40,8 @@ setup(
         'Natural Language :: English',
         'Topic :: Scientific/Engineering',
         'Topic :: Software Development',
+        'License :: OSI Approved :: MIT License',
+        'Operating System :: OS Independent',
     ],
     test_suite='pyrandomsearch.test',
 )
