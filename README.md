@@ -157,7 +157,13 @@ $ for X in 0 1 2 3 4; do \
 
 ## Installation
 
-The program can be installed by installing the Python module from source which will establish the `pyrandomsearch` entry point:
+The easiest thing to do is to install it via `pip` from the [Python Package Index](https://pypi.org/project/pyrandomsearch/):
+
+```sh
+pip install pyrandomsearch
+```
+
+The program can also be installed by installing the Python module from source which will establish the `pyrandomsearch` entry point:
 
 ```sh
 python setup.py install
